@@ -101,6 +101,13 @@ window.Editor = (() => {
     });
     patterns.value = topic.patterns.map((p) => p.join(' + ')).join('\n');
 
+    const hint = el('textarea', {
+      rows: 2, placeholder: 'Optional hint shown on the practice page',
+      'aria-label': `Hint for ${topic.name}`,
+      oninput: (e) => { topic.hint = e.target.value.trim(); autosize(e.target); changed(); },
+    });
+    hint.value = topic.hint || '';
+
     return el('div', { class: 'edit-card', 'data-topic': index },
       el('div', { class: 'row' },
         el('input', {
@@ -120,6 +127,8 @@ window.Editor = (() => {
       el('label', { class: 'field-label' }, 'Patterns — one per line, list numbers joined with +'),
       patterns,
       el('p', { class: 'warning', hidden: true }),
+      el('label', { class: 'field-label' }, 'Hint'),
+      hint,
     );
   }
 
@@ -231,7 +240,7 @@ window.Editor = (() => {
       el('button', {
         class: 'btn btn-add', type: 'button',
         onclick: () => {
-          db.topics.push({ name: 'New topic', patterns: [] });
+          db.topics.push({ name: 'New topic', hint: '', patterns: [] });
           render();
           changed();
           root.querySelector(`[data-topic="${db.topics.length - 1}"] .name`).select();

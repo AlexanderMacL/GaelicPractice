@@ -5,6 +5,8 @@ window.STARTER_DATABASE = `# Gaelic Practice Database
 ## Topics
 
 ### Inversion
+> With a verbal noun and an object, the object comes first:
+> Bu toigh leam càr a cheannach.
 - 5 + 6 + 7
 
 ### Infinitive

@@ -9,6 +9,11 @@
   const sentenceEl = document.getElementById('sentence');
   const legendEl = document.getElementById('legend');
   const topicTitle = document.getElementById('topic-title');
+  const checkLink = document.getElementById('check');
+  const hintText = document.getElementById('hint-text');
+  const hintInput = document.getElementById('hint-input');
+  const hintEdit = document.getElementById('hint-edit');
+  let editingHint = false;
 
   const LAST_ROUTE = 'gaelicPractice.lastRoute';
 
@@ -42,6 +47,8 @@
     if (result.error) {
       sentenceEl.classList.add('is-error');
       sentenceEl.textContent = result.error;
+      checkLink.removeAttribute('href');
+      checkLink.setAttribute('aria-disabled', 'true');
       return;
     }
     sentenceEl.classList.remove('is-error');
@@ -64,11 +71,52 @@
       legendEl.append(li);
     });
 
+    const sentence = sentenceEl.textContent;
+    checkLink.href = 'https://translate.google.com/?sl=en&tl=gd&op=translate&text=' + encodeURIComponent(sentence);
+    checkLink.removeAttribute('aria-disabled');
+
     // Restart the fade-in animation.
     sentenceEl.classList.remove('fade');
     void sentenceEl.offsetWidth;
     sentenceEl.classList.add('fade');
   }
+
+  function currentTopic() {
+    const r = currentRoute();
+    return r && r.view === 'topic' ? db.topics[r.index] : null;
+  }
+
+  function renderHint() {
+    const topic = currentTopic();
+    if (!topic) return;
+    hintInput.hidden = !editingHint;
+    hintText.hidden = editingHint;
+    hintEdit.textContent = editingHint ? 'Done' : topic.hint ? 'Edit' : 'Add';
+    hintText.textContent = topic.hint || 'No hint for this topic yet.';
+    hintText.classList.toggle('is-empty', !topic.hint);
+  }
+
+  hintEdit.addEventListener('click', () => {
+    const topic = currentTopic();
+    if (!topic) return;
+    editingHint = !editingHint;
+    if (editingHint) hintInput.value = topic.hint || '';
+    renderHint();
+    if (editingHint) {
+      hintInput.style.height = 'auto';
+      hintInput.style.height = Math.max(hintInput.scrollHeight + 2, 80) + 'px';
+      hintInput.focus();
+    }
+  });
+
+  hintInput.addEventListener('input', () => {
+    const topic = currentTopic();
+    if (!topic) return;
+    topic.hint = hintInput.value.trim();
+    hintInput.style.height = 'auto';
+    hintInput.style.height = Math.max(hintInput.scrollHeight + 2, 80) + 'px';
+    DB.save(db);
+  });
 
   function route() {
     let r = currentRoute();
@@ -90,6 +138,8 @@
       topicTitle.textContent = topic.name;
       document.title = `${topic.name} · Gaelic Practice`;
       previousKey = null;
+      editingHint = false;
+      renderHint();
       showSentence(topic);
     } else {
       document.title = 'Edit database · Gaelic Practice';

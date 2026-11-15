@@ -27,7 +27,7 @@ window.DB = (() => {
       if ((m = line.match(/^###\s+(.+)$/))) {
         const heading = m[1].trim();
         if (section === 'topics') {
-          current = { name: heading, patterns: [] };
+          current = { name: heading, hint: '', hintLines: [], patterns: [] };
           db.topics.push(current);
         } else if (section === 'lists') {
           const lm = heading.match(/^([^:]+?)\s*:\s*(.*)$/);
@@ -42,6 +42,10 @@ window.DB = (() => {
         }
         continue;
       }
+      if (section === 'topics' && current && (m = raw.trim().match(/^>\s?(.*)$/))) {
+        current.hintLines.push(m[1].trimEnd());
+        continue;
+      }
       if ((m = line.match(/^[-*]\s+(.*)$/)) && current) {
         const text = m[1].trim();
         if (!text) continue;
@@ -53,6 +57,10 @@ window.DB = (() => {
         }
       }
     }
+    for (const t of db.topics) {
+      t.hint = t.hintLines.join('\n').trim();
+      delete t.hintLines;
+    }
     return db;
   }
 
@@ -61,6 +69,9 @@ window.DB = (() => {
     out.push('## Topics', '');
     for (const t of db.topics) {
       out.push(`### ${t.name}`);
+      if (t.hint) {
+        for (const l of t.hint.split('\n')) out.push(l.trim() ? `> ${l.trimEnd()}` : '>');
+      }
       for (const p of t.patterns) out.push(`- ${p.join(' + ')}`);
       out.push('');
     }

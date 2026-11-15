@@ -23,7 +23,17 @@
         <p id="sentence" class="sentence" aria-live="polite"></p>
         <ol id="legend" class="legend" aria-label="Lists used"></ol>
       </div>
+      <div class="hint-box">
+        <div class="hint-head">
+          <span class="hint-title">Hint</span>
+          <button id="hint-edit" class="link-btn" type="button">Edit</button>
+        </div>
+        <p id="hint-text" class="hint-text"></p>
+        <textarea id="hint-input" class="hint-input" rows="3" hidden
+          placeholder="Write a reminder for this topic…" aria-label="Hint for this topic"></textarea>
+      </div>
       <div class="actions">
+        <a id="check" class="btn-secondary" target="_blank" rel="noopener">Check translation</a>
         <button id="next" class="btn-primary" type="button">Next</button>
       </div>
     </section>
